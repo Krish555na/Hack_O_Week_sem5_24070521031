@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AuraLib - Modern Library Management System with real-time cataloging, borrowing lifecycle tracking, search, and analytics.">
+  <title>AuraLib — Modern Library Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Background Glow Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <div class="app-container">
+    <!-- Top Navigation -->
+    <header class="top-nav" id="top-nav">
+      <div class="nav-brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <path d="M9 7h6"></path>
+            <path d="M9 11h6"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">AuraLib</h1>
+          <span class="brand-tag">Intelligent Library Suite</span>
+        </div>
+      </div>
+
+      <!-- Quick Stats Strip -->
+      <div class="quick-stats-strip" id="quick-stats-strip">
+        <div class="stat-pill" id="stat-total">
+          <span class="stat-label">Total Books</span>
+          <span class="stat-value" id="count-total">0</span>
+        </div>
+        <div class="stat-pill stat-avail" id="stat-avail">
+          <span class="stat-label">Available</span>
+          <span class="stat-value" id="count-available">0</span>
+        </div>
+        <div class="stat-pill stat-borrowed" id="stat-borrowed">
+          <span class="stat-label">Borrowed</span>
+          <span class="stat-value" id="count-borrowed">0</span>
+        </div>
+        <div class="stat-pill stat-categories" id="stat-categories">
+          <span class="stat-label">Genres</span>
+          <span class="stat-value" id="count-categories">0</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button class="btn btn-secondary" id="btn-export" title="Export library to JSON">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+        <button class="btn btn-secondary" id="btn-activity" title="View Borrowing History">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          History
+        </button>
+        <button class="btn btn-primary" id="btn-add-book">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Book
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+      <!-- Search and Controls Bar -->
+      <section class="controls-card glass-panel" id="controls-panel">
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="Search by title, author, or ISBN... (Press '/' to focus)" autocomplete="off">
+          <span class="search-badge">/</span>
+        </div>
+
+        <div class="filters-row">
+          <!-- Genre Pills -->
+          <div class="genre-pills" id="genre-pills-container">
+            <button class="pill active" data-genre="all">All</button>
+            <button class="pill" data-genre="Machine Learning">Machine Learning</button>
+            <button class="pill" data-genre="Computer Science">Computer Science</button>
+            <button class="pill" data-genre="Mathematics">Mathematics</button>
+            <button class="pill" data-genre="Artificial Intelligence">AI & Robotics</button>
+            <button class="pill" data-genre="Data Science">Data Science</button>
+          </div>
+
+          <div class="filter-dropdowns">
+            <div class="select-wrapper">
+              <label for="status-filter" class="sr-only">Filter by Status</label>
+              <select id="status-filter">
+                <option value="all">All Status</option>
+                <option value="available">Available Only</option>
+                <option value="borrowed">Borrowed Only</option>
+              </select>
+            </div>
+
+            <div class="select-wrapper">
+              <label for="sort-select" class="sr-only">Sort Books</label>
+              <select id="sort-select">
+                <option value="title-asc">Title (A-Z)</option>
+                <option value="title-desc">Title (Z-A)</option>
+                <option value="rating-desc">Rating (Highest)</option>
+                <option value="year-desc">Year (Newest)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Books Catalog Grid -->
+      <section class="catalog-section" id="catalog-section">
+        <div class="catalog-header">
+          <h2 class="catalog-title">Catalog Inventory</h2>
+          <span class="catalog-count" id="filtered-count">Showing 0 books</span>
+        </div>
+        <div class="books-grid" id="books-grid">
+          <!-- Book Cards Injected via JS -->
+        </div>
+        <div class="empty-state hidden" id="empty-state">
+          <div class="empty-icon">📚</div>
+          <h3>No books matched your criteria</h3>
+          <p>Try clearing filters or adding a new volume to the catalog.</p>
+          <button class="btn btn-primary" id="btn-reset-filters">Reset Filters</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add / Edit Book Modal -->
+  <div class="modal-backdrop hidden" id="book-modal">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <h3 id="modal-title">Add New Book</h3>
+        <button class="modal-close" id="btn-close-modal">&times;</button>
+      </div>
+      <form id="book-form">
+        <input type="hidden" id="form-book-id">
+        <div class="form-grid">
+          <div class="form-group span-2">
+            <label for="form-title">Book Title *</label>
+            <input type="text" id="form-title" required placeholder="e.g. Deep Learning">
+          </div>
+          <div class="form-group">
+            <label for="form-author">Author(s) *</label>
+            <input type="text" id="form-author" required placeholder="e.g. Ian Goodfellow, Yoshua Bengio">
+          </div>
+          <div class="form-group">
+            <label for="form-genre">Genre *</label>
+            <select id="form-genre" required>
+              <option value="Machine Learning">Machine Learning</option>
+              <option value="Artificial Intelligence">Artificial Intelligence</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Data Science">Data Science</option>
+              <option value="Physics">Physics</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-year">Publication Year *</label>
+            <input type="number" id="form-year" min="1800" max="2030" required placeholder="2023">
+          </div>
+          <div class="form-group">
+            <label for="form-isbn">ISBN-13 *</label>
+            <input type="text" id="form-isbn" required placeholder="978-0262035613">
+          </div>
+          <div class="form-group">
+            <label for="form-rating">Rating (1 to 5)</label>
+            <input type="number" id="form-rating" min="1" max="5" step="0.1" value="4.8">
+          </div>
+          <div class="form-group">
+            <label for="form-copies">Copies Available</label>
+            <input type="number" id="form-copies" min="1" max="50" value="3">
+          </div>
+          <div class="form-group span-2">
+            <label for="form-summary">Description & Notes</label>
+            <textarea id="form-summary" rows="3" placeholder="Brief summary, key algorithms covered, etc."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-form">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-book">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Borrow Dialog Modal -->
+  <div class="modal-backdrop hidden" id="borrow-modal">
+    <div class="modal-dialog glass-panel modal-sm">
+      <div class="modal-header">
+        <h3>Borrow Book</h3>
+        <button class="modal-close" id="btn-close-borrow">&times;</button>
+      </div>
+      <form id="borrow-form">
+        <input type="hidden" id="borrow-book-id">
+        <div class="borrow-book-preview" id="borrow-book-preview">
+          <!-- Book snippet -->
+        </div>
+        <div class="form-group">
+          <label for="borrower-name">Borrower Name / Student ID *</label>
+          <input type="text" id="borrower-name" required placeholder="e.g. Alex Mercer (ID: ML-402)">
+        </div>
+        <div class="form-group">
+          <label for="borrow-days">Borrow Duration (Days)</label>
+          <select id="borrow-days">
+            <option value="7">7 Days</option>
+            <option value="14" selected>14 Days</option>
+            <option value="30">30 Days</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-borrow">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Checkout</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Activity History Drawer -->
+  <div class="drawer-backdrop hidden" id="history-drawer">
+    <div class="drawer glass-panel">
+      <div class="drawer-header">
+        <h3>Activity Log</h3>
+        <button class="modal-close" id="btn-close-drawer">&times;</button>
+      </div>
+      <div class="drawer-body" id="activity-log-list">
+        <!-- Log items injected here -->
+      </div>
+      <div class="drawer-footer">
+        <button class="btn btn-secondary btn-full" id="btn-clear-history">Clear History</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

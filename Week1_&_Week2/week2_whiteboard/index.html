@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AuraBoard - Modern Interactive Canvas Whiteboard with shapes, vectors, freehand smoothing, undo/redo, sticky notes and high-resolution export.">
+  <title>AuraBoard — Studio Whiteboard Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Ambient background glow -->
+  <div class="ambient-glow"></div>
+
+  <div class="app-workspace">
+    <!-- Top Floating Header Bar -->
+    <header class="top-bar glass-dock">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+            <path d="M2 2l7.586 7.586"></path>
+            <circle cx="11" cy="11" r="2"></circle>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">AuraBoard</h1>
+          <span class="board-badge" id="board-name">Canvas Studio</span>
+        </div>
+      </div>
+
+      <!-- Action Group (Undo, Redo, Clear, Zoom) -->
+      <div class="action-group">
+        <button class="tool-btn" id="btn-undo" title="Undo (Ctrl+Z)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+        </button>
+        <button class="tool-btn" id="btn-redo" title="Redo (Ctrl+Y)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+        </button>
+        <div class="divider"></div>
+        <button class="tool-btn" id="btn-zoom-out" title="Zoom Out">-</button>
+        <span class="zoom-indicator" id="zoom-level">100%</span>
+        <button class="tool-btn" id="btn-zoom-in" title="Zoom In">+</button>
+        <button class="tool-btn" id="btn-reset-view" title="Reset View">1:1</button>
+      </div>
+
+      <!-- Export & Storage Actions -->
+      <div class="export-group">
+        <button class="tool-btn btn-danger-soft" id="btn-clear" title="Clear Canvas">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          Clear
+        </button>
+        <button class="btn btn-secondary" id="btn-save-json" title="Export Project as JSON">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          Save
+        </button>
+        <button class="btn btn-primary" id="btn-export-png" title="Export PNG image">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export PNG
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Floating Vertical Tool Palette -->
+    <aside class="tool-dock glass-dock" id="tool-dock">
+      <div class="tool-section">
+        <button class="tool-btn active" data-tool="brush" id="tool-brush" title="Freehand Brush (P)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13.5c0 2.2-1.8 4-4 4H8c-2.2 0-4-1.8-4-4s1.8-4 4-4h6c2.2 0 4 1.8 4 4z"></path><path d="M14 2L20 8l-6 6"></path></svg>
+        </button>
+        <button class="tool-btn" data-tool="line" id="tool-line" title="Straight Line (L)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="19" x2="19" y2="5"></line></svg>
+        </button>
+        <button class="tool-btn" data-tool="arrow" id="tool-arrow" title="Arrow (A)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="19" x2="19" y2="5"></line><polyline points="10 5 19 5 19 14"></polyline></svg>
+        </button>
+        <button class="tool-btn" data-tool="rectangle" id="tool-rectangle" title="Rectangle (R)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+        </button>
+        <button class="tool-btn" data-tool="circle" id="tool-circle" title="Circle / Ellipse (C)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>
+        </button>
+        <button class="tool-btn" data-tool="text" id="tool-text" title="Text Label (T)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+        </button>
+        <button class="tool-btn" data-tool="sticky" id="tool-sticky" title="Sticky Note (N)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        </button>
+        <button class="tool-btn" data-tool="eraser" id="tool-eraser" title="Eraser (E)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 21L20 8l-6-6L1 15l6 6z"></path><line x1="18" y1="10" x2="12" y2="4"></line></svg>
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Color Palette Preset Row -->
+      <div class="color-palette">
+        <button class="color-swatch active" style="background:#ffffff;" data-color="#ffffff" title="White"></button>
+        <button class="color-swatch" style="background:#6366f1;" data-color="#6366f1" title="Indigo"></button>
+        <button class="color-swatch" style="background:#06b6d4;" data-color="#06b6d4" title="Cyan"></button>
+        <button class="color-swatch" style="background:#10b981;" data-color="#10b981" title="Emerald"></button>
+        <button class="color-swatch" style="background:#f59e0b;" data-color="#f59e0b" title="Amber"></button>
+        <button class="color-swatch" style="background:#ef4444;" data-color="#ef4444" title="Rose"></button>
+        <div class="custom-color-picker" title="Custom Color">
+          <input type="color" id="custom-color-input" value="#a855f7">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Stroke Width Controls -->
+      <div class="stroke-controls">
+        <span class="ctrl-label">Size</span>
+        <input type="range" id="stroke-slider" min="1" max="40" value="4">
+        <span class="stroke-val" id="stroke-value">4px</span>
+      </div>
+
+      <!-- Fill Toggle -->
+      <label class="toggle-fill" id="toggle-fill-label">
+        <input type="checkbox" id="fill-checkbox">
+        <span class="toggle-text">Fill Shape</span>
+      </label>
+    </aside>
+
+    <!-- Canvas Viewport -->
+    <main class="canvas-container" id="canvas-container">
+      <canvas id="whiteboard-canvas"></canvas>
+      <!-- Sticky notes overlay -->
+      <div id="sticky-notes-container"></div>
+    </main>
+
+    <!-- Bottom Status Bar -->
+    <footer class="bottom-status-bar glass-dock">
+      <div class="status-item">
+        <span class="indicator-dot"></span>
+        <span id="current-tool-text">Tool: Brush (Freehand)</span>
+      </div>
+      <div class="status-item" id="cursor-pos">X: 0, Y: 0</div>
+      <div class="status-item" id="dimensions-display">Dimensions: Auto</div>
+      <div class="status-item">Shortcuts: [P] Pen, [R] Rect, [C] Circle, [L] Line, [E] Eraser, [Ctrl+Z] Undo</div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
